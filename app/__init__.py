@@ -10,6 +10,8 @@ def create_app():
 
     db.init_app(app)
 
-    # Các đoạn mã khác như đăng ký blueprint nếu có
+    from app.routes import auth, product
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(product.bp)
 
     return app
