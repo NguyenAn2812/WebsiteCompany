@@ -13,3 +13,20 @@ config.py: Chứa cấu hình của ứng dụng.
 
 run.py: Tệp để chạy ứng dụng Flask.
 
+
+tên công ty - tiếng việt
+tên người mua
+số điện thoại
+mật khẩu
+
+-be
+số điểm
+danh sách đặt hàng
+danh sách khuyến mãi 
+
+- sản phẩm
+tên sản phẩm
+giá tiền
+thông tin
+mã sản phẩm
+
