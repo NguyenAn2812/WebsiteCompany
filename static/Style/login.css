@@ -1,0 +1,71 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.grid-container {
+    border: 2px solid black;
+    border-radius: 10px; /* Rounded corners */
+    text-align: center;
+    width: 300px; /* Fixed width for the form */
+    padding: 20px; /* Padding inside the form */
+    background-color: #fff; /* White background for the form */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Slight shadow for better visibility */
+}
+
+.grid-item {
+    margin-bottom: 10px;
+}
+
+.content_text {
+    display: inline-block;
+    margin-bottom: 5px;
+    
+    font-weight: bold; /* Bold labels */
+}
+
+input[type="text"], input[type="password"] {
+    width: 95%; /* Full width inputs */
+    padding: 8px; /* Padding inside inputs */
+    margin-bottom: 10px; /* Space between inputs and button */
+    border: 1px solid #ccc; /* Light grey border for inputs */
+    border-radius: 5px
+}
+
+button{
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 1px solid;
+    border-radius: 10px;
+    padding-right: 10px;
+}
+
+button:hover{color: rgba(255, 255, 255, 1);
+    background-color: rgba(96,155,210,255);
+    transition: 0.5s; 
+}
+
+.optional_choices{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-bottom: 10px;
+    
+}
+
+.left{
+    display: flex;
+    justify-content: left;
+    margin-left: 1%;
+    
+}
+
+.right{
+    display: flex;
+    justify-content: right;
+
+}
