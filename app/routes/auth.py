@@ -26,7 +26,7 @@ def register():
         db.session.commit()
 
         flash('Đăng ký thành công!')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('home.home'))
 
     return render_template('register.html', form=form)
 
@@ -40,20 +40,15 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             flash('Đăng nhập thành công!', 'success')
-            return redirect(url_for('auth.dashboard'))
+            return redirect(url_for('home.home'))
         else:
             flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
 
     return render_template('login.html', form=form)
-
-@auth_bp.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template('dashboard.html')
 
 @auth_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('Bạn đã đăng xuất.', 'success')
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('home.home'))
