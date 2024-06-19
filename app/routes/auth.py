@@ -1,5 +1,6 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
 from app.models import db, User
 from app.forms import LoginForm, RegisterForm
 
@@ -37,7 +38,8 @@ def login():
         password = form.password.data
         user = User.query.filter_by(phone_number=phone_number).first()
         if user and check_password_hash(user.password_hash, password):
-            flash('Đăng nhập thành công!')
+            login_user(user)
+            flash('Đăng nhập thành công!', 'success')
             return redirect(url_for('auth.dashboard'))
         else:
             flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
@@ -45,5 +47,13 @@ def login():
     return render_template('login.html', form=form)
 
 @auth_bp.route('/dashboard')
+@login_required
 def dashboard():
-    return 'Đây là dashboard. Người dùng đã đăng nhập thành công!'
+    return render_template('dashboard.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Bạn đã đăng xuất.', 'success')
+    return redirect(url_for('auth.login'))

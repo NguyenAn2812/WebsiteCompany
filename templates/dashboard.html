@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Style/dashboard.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <p>Chào mừng, bạn đã đăng nhập thành công!</p>
+        <a href="{{ url_for('auth.logout') }}" class="button">Đăng xuất</a>
+    </div>
+</body>
+</html>

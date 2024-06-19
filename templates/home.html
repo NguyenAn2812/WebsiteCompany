@@ -8,11 +8,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>Chào mừng đến với Trang Chủ</h1>
-        <div class="buttons">
-            <a href="{{ url_for('auth.login') }}" class="button">Đăng nhập</a>
-            <a href="{{ url_for('auth.register') }}" class="button">Đăng ký</a>
-        </div>
+        <h1>Home</h1>
+        <a href="{{ url_for('auth.login') }}" class="button">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="button">Register</a>
     </div>
 </body>
 </html>
