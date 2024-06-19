@@ -1,43 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Style/register.css') }}">
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Register Page</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href="{{ url_for('static', filename='Style/register.css') }}">
 </head>
 <body>
     <div class="grid-container">
         <h1>Đăng ký</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        <form method="POST" action="{{ url_for('auth.register') }}">
+        <form action="{{ url_for('auth.register') }}" method="post">
             {{ form.hidden_tag() }}
             <div class="grid-item">
-                {{ form.company_name.label }}<br>
-                {{ form.company_name(size=32) }}
+                {{ form.company_name.label }} {{ form.company_name(size=32) }}
             </div>
             <div class="grid-item">
-                {{ form.buyer_name.label }}<br>
-                {{ form.buyer_name(size=32) }}
+                {{ form.buyer_name.label }} {{ form.buyer_name(size=32) }}
             </div>
             <div class="grid-item">
-                {{ form.phone_number.label }}<br>
-                {{ form.phone_number(size=32) }}
+                {{ form.phone_number.label }} {{ form.phone_number(size=32) }}
             </div>
             <div class="grid-item">
-                {{ form.password.label }}<br>
-                {{ form.password(size=32) }}
+                {{ form.password.label }} {{ form.password(size=32) }}
             </div>
-            <div class="grid-item">
-                {{ form.submit() }}
+            <div>
+                {{ form.submit(class="btn btn-primary") }}  <!-- Sử dụng trường submit -->
             </div>
         </form>
     </div>

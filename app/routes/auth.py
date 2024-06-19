@@ -18,14 +18,14 @@ def register():
 
         existing_user = User.query.filter_by(phone_number=phone_number).first()
         if existing_user:
-            flash('Số điện thoại đã tồn tại. Vui lòng sử dụng số điện thoại khác.', 'error')
+            flash('Phone number already exists. Please use a different phone number.', 'error')
             return redirect(url_for('auth.register'))
 
-        new_user = User(company_name=company_name, buyer_name=buyer_name, phone_number=phone_number, password_hash=hashed_password)
+        new_user = User(company_name=company_name, buyer_name=buyer_name, phone_number=phone_number, password_hash=hashed_password, role='user')
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Đăng ký thành công!')
+        flash('Registration successful!')
         return redirect(url_for('home.home'))
 
     return render_template('register.html', form=form)
@@ -37,12 +37,18 @@ def login():
         phone_number = form.phone_number.data
         password = form.password.data
         user = User.query.filter_by(phone_number=phone_number).first()
+
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            flash('Đăng nhập thành công!', 'success')
-            return redirect(url_for('home.home'))
+            flash('Logged in successfully.', 'success')
+            if user.role == 'superadmin':
+                return redirect(url_for('admin.admin_dashboard'))
+            elif user.role == 'customer_admin':
+                return redirect(url_for('admin.manage_customers'))
+            else:
+                return redirect(url_for('home.home'))
         else:
-            flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
+            flash('Invalid phone number or password.', 'danger')
 
     return render_template('login.html', form=form)
 
@@ -50,5 +56,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Bạn đã đăng xuất.', 'success')
+    flash('You have been logged out.', 'info')
     return redirect(url_for('home.home'))

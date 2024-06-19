@@ -91,3 +91,44 @@ body {
     text-decoration: none;
     cursor: pointer;
 }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    cursor: pointer;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ccc;
+    padding: 20px;
+    background: white;
+    z-index: 1000;
+}
+
+.popup-background {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Customers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/admin.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h1>Manage Customers</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Buyer Name</th>
+                <th>Phone Number</th>
+                <th>Points</th>
+                <th>Orders</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+                <tr>
+                    <td>
+                        <span class="editable" data-user-id="{{ customer.id }}" data-field="company_name">{{ customer.company_name }}</span>
+                    </td>
+                    <td>
+                        <span class="editable" data-user-id="{{ customer.id }}" data-field="buyer_name">{{ customer.buyer_name }}</span>
+                    </td>
+                    <td>{{ customer.phone_number }}</td>
+                    <td>
+                        <span class="editable" data-user-id="{{ customer.id }}" data-field="points">{{ customer.points }}</span>
+                    </td>
+                    <td>{{ customer.orders | length }}</td>
+                    <td>
+                        <button onclick="subtractPoints({{ customer.id }})">Subtract Points</button>
+                        {% if current_user.role == 'superadmin' %}
+                            <button onclick="deleteCustomer({{ customer.id }})">Delete</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Customer</h2>
+            <input type="hidden" id="editUserId">
+            <input type="hidden" id="editField">
+            <label for="editFieldValue">Value</label>
+            <input type="text" id="editFieldValue">
+            <button id="updateField">Update</button>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.editable').click(function() {
+                var userId = $(this).data('user-id');
+                var field = $(this).data('field');
+                var value = $(this).text();
+
+                $('#editUserId').val(userId);
+                $('#editField').val(field);
+                $('#editFieldValue').val(value);
+                $('#editModal').show();
+            });
+
+            $('.close').click(function() {
+                $('#editModal').hide();
+            });
+
+            $('#updateField').click(function() {
+                var userId = $('#editUserId').val();
+                var field = $('#editField').val();
+                var value = $('#editFieldValue').val();
+
+                fetch('{{ url_for("admin.update_customer_field") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: userId, field: field, value: value }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        $('.editable[data-user-id="' + userId + '"][data-field="' + field + '"]').text(value);
+                        $('#editModal').hide();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            });
+
+            function subtractPoints(userId) {
+                Swal.fire({
+                    title: 'Enter points to subtract',
+                    input: 'number',
+                    showCancelButton: true,
+                    confirmButtonText: 'Subtract',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (points) => {
+                        return fetch('{{ url_for("admin.subtract_points") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ user_id: userId, points: points }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status !== 'success') {
+                                throw new Error(data.message);
+                            }
+                            return data;
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                            );
+                        });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: `New points: ${result.value.new_points}`
+                        });
+                        location.reload();
+                    }
+                });
+            }
+
+            window.subtractPoints = subtractPoints;
+
+            function deleteCustomer(userId) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You will not be able to recover this account!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ url_for("admin.delete_customer") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ user_id: userId }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The account has been deleted.',
+                                    'success'
+                                );
+                                location.reload();
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    data.message,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            }
+
+            window.deleteCustomer = deleteCustomer;
+        });
+    </script>
+</body>
+</html>

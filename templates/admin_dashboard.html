@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Admin Dashboard</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href="{{ url_for('static', filename='Style/admin.css') }}">
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <div>
+        <button onclick="window.location.href='{{ url_for('admin.manage_customer_admins') }}'">Manage Customer Admins</button>
+        <button onclick="window.location.href='{{ url_for('admin.manage_customers') }}'">Manage Customers</button>
+    </div>
+</body>
+</html>

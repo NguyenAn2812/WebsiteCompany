@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Manage Customer Admins</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href="{{ url_for('static', filename='Style/admin.css') }}">
+</head>
+<body>
+    <h1>Manage Customer Admins</h1>
+    <form method="POST" action="{{ url_for('admin.manage_customer_admins') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.username.label }}: {{ form.username() }}
+        </div>
+        <div>
+            {{ form.password.label }}: {{ form.password() }}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
+    </form>
+    <h2>List of Customer Admins</h2>
+    <ul>
+        {% for admin in admins %}
+            <li>{{ admin.buyer_name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

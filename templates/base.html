@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home.home') }}">Home</a></li>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'superadmin' %}
+                        <li><a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a></li>
+                    {% elif current_user.role == 'customer_admin' %}
+                        <li><a href="{{ url_for('admin.manage_customers') }}">Manage Customers</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

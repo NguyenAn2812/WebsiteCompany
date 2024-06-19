@@ -1,15 +1,32 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, HiddenField
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
+from app.models import User
 
 class LoginForm(FlaskForm):
-    phone_number = StringField('Số điện thoại', validators=[DataRequired(), Length(min=10, max=20)])
-    password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6, max=128)])
-    submit = SubmitField('Đăng nhập')
+    phone_number = StringField('Phone Number', validators=[DataRequired(), Length(min=10, max=20)])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
 
 class RegisterForm(FlaskForm):
-    company_name = StringField('Tên công ty', validators=[DataRequired(), Length(min=1, max=100)])
-    buyer_name = StringField('Tên người mua', validators=[DataRequired(), Length(min=1, max=100)])
-    phone_number = StringField('Số điện thoại', validators=[DataRequired(), Length(min=10, max=20)])
-    password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6, max=128)])
-    submit = SubmitField('Đăng ký')
+    company_name = StringField('Company Name', validators=[DataRequired(), Length(max=100)])
+    buyer_name = StringField('Buyer Name', validators=[DataRequired(), Length(max=100)])
+    phone_number = StringField('Phone Number', validators=[DataRequired(), Length(min=10, max=20)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')
+
+    def validate_phone_number(self, phone_number):
+        user = User.query.filter_by(phone_number=phone_number.data).first()
+        if user:
+            raise ValidationError('Phone number already exists. Please use a different phone number.')
+
+class AdminForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(max=100)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+    submit = SubmitField('Create Admin')
+
+class EditPointsForm(FlaskForm):
+    user_id = HiddenField('User ID', validators=[DataRequired()])
+    points = IntegerField('Points', validators=[DataRequired()])
+    submit = SubmitField('Update Points')
