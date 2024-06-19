@@ -1,23 +1,49 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, request, render_template, redirect, url_for, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.models import db, User
+from app.forms import LoginForm, RegisterForm
 
-bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__)
 
-@bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        # Mã hóa mật khẩu và lưu vào CSDL
-        # Chuyển hướng đến trang đăng nhập hoặc dashboard
-    return render_template('register.html')
+    form = RegisterForm()
+    if form.validate_on_submit():
+        company_name = form.company_name.data
+        buyer_name = form.buyer_name.data
+        phone_number = form.phone_number.data
+        password = form.password.data
+        hashed_password = generate_password_hash(password)
 
+        existing_user = User.query.filter_by(phone_number=phone_number).first()
+        if existing_user:
+            flash('Số điện thoại đã tồn tại. Vui lòng sử dụng số điện thoại khác.', 'error')
+            return redirect(url_for('auth.register'))
 
-@bp.route('/login', methods=['GET', 'POST'])
+        new_user = User(company_name=company_name, buyer_name=buyer_name, phone_number=phone_number, password_hash=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Đăng ký thành công!')
+        return redirect(url_for('auth.login'))
+
+    return render_template('register.html', form=form)
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        # Kiểm tra thông tin đăng nhập
-        # Chuyển hướng người dùng đến dashboard
-    return render_template('login.html')
+    form = LoginForm()
+    if form.validate_on_submit():
+        phone_number = form.phone_number.data
+        password = form.password.data
+        user = User.query.filter_by(phone_number=phone_number).first()
+        if user and check_password_hash(user.password_hash, password):
+            flash('Đăng nhập thành công!')
+            return redirect(url_for('auth.dashboard'))
+        else:
+            flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'error')
 
+    return render_template('login.html', form=form)
+
+@auth_bp.route('/dashboard')
+def dashboard():
+    return 'Đây là dashboard. Người dùng đã đăng nhập thành công!'

@@ -1,24 +1,25 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from flask_wtf import CSRFProtect
+from app.models import db
 
 def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your_secret_key_here'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db'
+    app = Flask(__name__, template_folder='../templates')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database/database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'your_secret_key_here'  # Thay thế bằng khóa bí mật của bạn
 
     db.init_app(app)
+    csrf = CSRFProtect(app)
 
-    # Định nghĩa lệnh custom để khởi tạo DB
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
+
+    from app.routes.product import product_bp
+    app.register_blueprint(product_bp)
+
     @app.cli.command('init-db')
-    def init_db_command():
-        """Clear the existing data and create new tables."""
-        db.drop_all()
+    def init_db():
         db.create_all()
         print('Initialized the database.')
-
-    # Đăng ký các Blueprint hoặc các module khác ở đây nếu có
 
     return app

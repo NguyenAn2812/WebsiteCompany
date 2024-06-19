@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Style/home.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Chào mừng đến với Trang Chủ</h1>
+        <div class="buttons">
+            <a href="{{ url_for('auth.login') }}" class="button">Đăng nhập</a>
+            <a href="{{ url_for('auth.register') }}" class="button">Đăng ký</a>
+        </div>
+    </div>
+</body>
+</html>

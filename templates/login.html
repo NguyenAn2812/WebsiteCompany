@@ -1,29 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Login Page</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='../static/Style/login.css'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='Style/login.css') }}">
 </head>
 <body>
     <div class="grid-container">
         <h1>Đăng nhập</h1>
-        <form action="/login" method="post">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ form.hidden_tag() }}
             <div class="grid-item">
-                <label for="username" class="content_text">Tên người dùng</label>
-                <input type="text" id="username" name="username">
+                {{ form.phone_number.label }}<br>
+                {{ form.phone_number(size=32) }}
             </div>
             <div class="grid-item">
-                <label for="password" class="content_text">Mật khẩu</label>
-                <input type="password" id="password" name="password">
+                {{ form.password.label }}<br>
+                {{ form.password(size=32) }}
             </div>
-            <div class="optional_choices">
-                <a href="/register" class="left">Đăng ký</a>
-                <a href="/forgot-password" class="right">Quên mật khẩu?</a>
+            <div class="grid-item">
+                {{ form.submit() }}
             </div>
-            <button type="submit">Đăng nhập</button> 
         </form>
     </div>
 </body>
