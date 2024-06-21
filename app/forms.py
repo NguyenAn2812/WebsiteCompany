@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, HiddenField
+from wtforms import StringField, PasswordField, FileField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from app.models import User
 
@@ -26,7 +26,10 @@ class AdminForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     submit = SubmitField('Create Admin')
 
-class EditPointsForm(FlaskForm):
-    user_id = HiddenField('User ID', validators=[DataRequired()])
-    points = IntegerField('Points', validators=[DataRequired()])
-    submit = SubmitField('Update Points')
+class UploadForm(FlaskForm):
+    file = FileField('Excel File', validators=[DataRequired()])
+    submit = SubmitField('Upload')
+
+class PromoCodeForm(FlaskForm):
+    code = StringField('Promotional Code', validators=[DataRequired()])
+    submit = SubmitField('Submit')

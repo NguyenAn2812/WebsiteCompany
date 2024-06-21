@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/event.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Enter Promotion Code</h1>
+        <form method="POST" action="{{ url_for('event.event') }}">
+            <input type="text" name="promotion_code" placeholder="Enter your promotion code here">
+            <button type="submit">Submit</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

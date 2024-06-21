@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 import os
 
 def create_app():
-    load_dotenv()  # Tải các biến môi trường từ tệp .env
+    load_dotenv()  # Load environment variables from .env file
 
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database/database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = 'your_secret_key_here'
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
 
     db.init_app(app)
 
@@ -38,26 +38,30 @@ def create_app():
     from app.routes.admin import admin_bp
     app.register_blueprint(admin_bp)
 
+    from app.routes.event import event_bp
+    app.register_blueprint(event_bp)
+
     @app.cli.command('init-db')
     def init_db():
         with app.app_context():
             db.create_all()
 
-            # Tạo tài khoản admin cao nhất mặc định từ biến môi trường
+            # Create default superadmin account from environment variables
             admin_username = os.getenv('SUPER_ADMIN_USERNAME')
             admin_password = os.getenv('SUPER_ADMIN_PASSWORD')
 
-            admin_exists = User.query.filter_by(phone_number=admin_username).first()
-            if not admin_exists:
-                admin = User(
-                    company_name="Admin Company",
-                    buyer_name="Super Admin",
-                    phone_number=admin_username,
-                    password_hash=generate_password_hash(admin_password),
-                    role="superadmin"
-                )
-                db.session.add(admin)
-                db.session.commit()
+            if admin_username and admin_password:
+                admin_exists = User.query.filter_by(phone_number=admin_username).first()
+                if not admin_exists:
+                    admin = User(
+                        company_name="Admin Company",
+                        buyer_name="Super Admin",
+                        phone_number=admin_username,
+                        password_hash=generate_password_hash(admin_password),
+                        role="superadmin"
+                    )
+                    db.session.add(admin)
+                    db.session.commit()
 
             print('Initialized the database.')
 

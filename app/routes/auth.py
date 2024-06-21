@@ -1,6 +1,6 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import db, User
 from app.forms import LoginForm, RegisterForm
 
@@ -21,7 +21,7 @@ def register():
             flash('Phone number already exists. Please use a different phone number.', 'error')
             return redirect(url_for('auth.register'))
 
-        new_user = User(company_name=company_name, buyer_name=buyer_name, phone_number=phone_number, password_hash=hashed_password, role='user')
+        new_user = User(company_name=company_name, buyer_name=buyer_name, phone_number=phone_number, password_hash=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
@@ -41,10 +41,8 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             flash('Logged in successfully.', 'success')
-            if user.role == 'superadmin':
+            if user.role in ['admin', 'superadmin']:
                 return redirect(url_for('admin.admin_dashboard'))
-            elif user.role == 'customer_admin':
-                return redirect(url_for('admin.manage_customers'))
             else:
                 return redirect(url_for('home.home'))
         else:

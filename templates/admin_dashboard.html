@@ -1,17 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href="{{ url_for('static', filename='Style/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/admin.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
-    <div>
-        <button onclick="window.location.href='{{ url_for('admin.manage_customer_admins') }}'">Manage Customer Admins</button>
-        <button onclick="window.location.href='{{ url_for('admin.manage_customers') }}'">Manage Customers</button>
+    <div class="admin-container">
+        <h1>Admin Dashboard</h1>
+        <div class="admin-info">
+            <img src="{{ url_for('static', filename='images/admin.png') }}" alt="Admin Avatar">
+            <div>
+                <h2>Welcome, {{ current_user.buyer_name }}</h2>
+                <p>Role: {{ current_user.role }}</p>
+            </div>
+        </div>
+
+        <button onclick="showUploadModal()">Upload Promotion Codes</button>
+        <button onclick="location.href='{{ url_for('admin.manage_hr_admins') }}'">Manage HR Admins</button>
+        <button onclick="location.href='{{ url_for('admin.manage_customer_admins') }}'">Manage Customer Admins</button>
+        <button onclick="location.href='{{ url_for('admin.manage_customers') }}'">Manage Customers</button>
     </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUploadModal()">&times;</span>
+            <h2>Upload Promotion Codes</h2>
+            <input type="file" id="promotionCodeFile">
+            <button onclick="uploadPromotionCodes()">Upload</button>
+        </div>
+    </div>
+
+    <script>
+        function showUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function uploadPromotionCodes() {
+            var fileInput = document.getElementById('promotionCodeFile');
+            var file = fileInput.files[0];
+
+            if (!file) {
+                Swal.fire('Error', 'Please select a file to upload.', 'error');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            fetch('{{ url_for("admin.upload_promotion_codes") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire('Success', 'Promotion codes uploaded successfully!', 'success');
+                    closeUploadModal();
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'An error occurred while uploading the file.', 'error');
+            });
+        }
+    </script>
 </body>
 </html>

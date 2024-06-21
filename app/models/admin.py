@@ -12,13 +12,27 @@ def admin_dashboard():
     if not current_user.is_admin:
         return "Access Denied", 403
     return render_template('admin_dashboard.html')
+
+@admin_bp.route('/admin/manage_customers')
+@login_required
+def manage_customers():
+    if current_user.role not in ['customer_admin', 'superadmin']:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home.home'))
+
+    customers = User.query.filter_by(role='user').all()
+    return render_template('manage_customers.html', customers=customers)
+
 @admin_bp.route('/admin/update_customer_field', methods=['POST'])
 @login_required
 def update_customer_field():
-    if current_user.role not in ['customer_admin', 'superadmin']:
+    if current_user.role != 'superadmin':
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     data = request.json
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
+
     user_id = data.get('user_id')
     field = data.get('field')
     value = data.get('value')
@@ -38,12 +52,36 @@ def subtract_points():
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     data = request.json
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
+
+    user_id = data.get('user_id')
+    points_to_subtract = int(data.get('points'))
+
+    user = User.query.get(user_id)
+    if user:
+        user.points -= points_to_subtract
+        db.session.commit()
+        return jsonify({'status': 'success', 'new_points': user.points})
+    else:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+@admin_bp.route('/admin/delete_customer', methods=['POST'])
+@login_required
+def delete_customer():
+    if current_user.role != 'superadmin':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    data = request.json
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
+
     user_id = data.get('user_id')
 
     user = User.query.get(user_id)
     if user:
-        user.points -= 1
+        db.session.delete(user)
         db.session.commit()
-        return jsonify({'status': 'success', 'new_points': user.points})
+        return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'User not found'}), 404

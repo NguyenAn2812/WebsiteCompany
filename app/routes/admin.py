@@ -1,9 +1,11 @@
+import os
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
-from app.models import db, User
+from app.models import db, User, PromotionCode
 from app.forms import AdminForm
-
+import pandas as pd
+import logging
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/admin/dashboard')
@@ -85,12 +87,12 @@ def update_customer_field():
             return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
 
         user_id = data.get('user_id')
-        field = data.get('field')
-        value = data.get('value')
+        fields = data.get('fields')
 
         user = User.query.get(user_id)
         if user:
-            setattr(user, field, value)
+            for field, value in fields.items():
+                setattr(user, field, value)
             db.session.commit()
             return jsonify({'status': 'success'})
         else:
@@ -104,42 +106,99 @@ def subtract_points():
     if current_user.role not in ['customer_admin', 'superadmin']:
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
-    try:
-        data = request.json
-        if not data:
-            return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
+    data = request.json
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
 
-        user_id = data.get('user_id')
-        points_to_subtract = int(data.get('points'))
+    user_id = data.get('user_id')
+    points_to_subtract = int(data.get('points'))
 
-        user = User.query.get(user_id)
-        if user:
-            user.points -= points_to_subtract
-            db.session.commit()
-            return jsonify({'status': 'success', 'new_points': user.points})
-        else:
-            return jsonify({'status': 'error', 'message': 'User not found'}), 404
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+    user = User.query.get(user_id)
+    if user:
+        user.points -= points_to_subtract
+        db.session.commit()
+        return jsonify({'status': 'success', 'new_points': user.points})
+    else:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
 
 @admin_bp.route('/admin/delete_customer', methods=['POST'])
 @login_required
 def delete_customer():
     if current_user.role != 'superadmin':
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
-    try:
-        data = request.json
-        if not data:
-            return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
 
-        user_id = data.get('user_id')
+    data = request.json
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Invalid JSON data'}), 400
 
-        user = User.query.get(user_id)
-        if user:
-            db.session.delete(user)
-            db.session.commit()
+    user_id = data.get('user_id')
+
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+@admin_bp.route('/admin/get_customer/<int:user_id>')
+@login_required
+def get_customer(user_id):
+    if current_user.role != 'superadmin':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    user = User.query.get(user_id)
+    if user:
+        return jsonify({
+            'status': 'success',
+            'customer': {
+                'id': user.id,
+                'company_name': user.company_name,
+                'buyer_name': user.buyer_name,
+                'phone_number': user.phone_number,
+                'points': user.points
+            }
+        })
+    else:
+        return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+@admin_bp.route('/admin/upload_promotion_codes', methods=['POST'])
+@login_required
+def upload_promotion_codes():
+    if current_user.role != 'superadmin':
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+
+    if 'file' not in request.files:
+        return jsonify({'status': 'error', 'message': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'status': 'error', 'message': 'No selected file'}), 400
+
+    if file:
+        try:
+            df = pd.read_excel(file)
+            codes = df['code'].tolist()
+
+            # Đường dẫn tới file CSV lưu trữ mã khuyến mãi
+            csv_file = os.path.join(os.path.dirname(__file__), '../database/promotioncodelist.csv')
+
+            # Đọc dữ liệu CSV hiện tại
+            if os.path.exists(csv_file):
+                existing_df = pd.read_csv(csv_file)
+            else:
+                existing_df = pd.DataFrame(columns=['code', 'used'])
+
+            # Thêm các mã khuyến mãi mới vào DataFrame
+            for code in codes:
+                if code not in existing_df['code'].values:
+                    existing_df = existing_df.append({'code': code, 'used': False}, ignore_index=True)
+
+            # Lưu DataFrame vào file CSV
+            existing_df.to_csv(csv_file, index=False)
+
             return jsonify({'status': 'success'})
-        else:
-            return jsonify({'status': 'error', 'message': 'User not found'}), 404
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    return jsonify({'status': 'error', 'message': 'File processing error'}), 500
