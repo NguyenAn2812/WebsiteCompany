@@ -30,8 +30,11 @@
         <div class="modal-content">
             <span class="close" onclick="closeUploadModal()">&times;</span>
             <h2>Upload Promotion Codes</h2>
-            <input type="file" id="promotionCodeFile">
-            <button onclick="uploadPromotionCodes()">Upload</button>
+            <form id="uploadForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="file" id="promotionCodeFile" name="file">
+                <button type="button" onclick="uploadPromotionCodes()">Upload</button>
+            </form>
         </div>
     </div>
 
@@ -45,16 +48,7 @@
         }
 
         function uploadPromotionCodes() {
-            var fileInput = document.getElementById('promotionCodeFile');
-            var file = fileInput.files[0];
-
-            if (!file) {
-                Swal.fire('Error', 'Please select a file to upload.', 'error');
-                return;
-            }
-
-            var formData = new FormData();
-            formData.append('file', file);
+            var formData = new FormData(document.getElementById('uploadForm'));
 
             fetch('{{ url_for("admin.upload_promotion_codes") }}', {
                 method: 'POST',

@@ -6,7 +6,10 @@ from app.models import db, User, PromotionCode
 from app.forms import AdminForm
 import pandas as pd
 import logging
+
 admin_bp = Blueprint('admin', __name__)
+
+logging.basicConfig(level=logging.INFO)
 
 @admin_bp.route('/admin/dashboard')
 @login_required
@@ -169,15 +172,18 @@ def upload_promotion_codes():
         return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
 
     if 'file' not in request.files:
+        logging.error('No file part')
         return jsonify({'status': 'error', 'message': 'No file part'}), 400
 
     file = request.files['file']
     if file.filename == '':
+        logging.error('No selected file')
         return jsonify({'status': 'error', 'message': 'No selected file'}), 400
 
     if file:
         try:
-            df = pd.read_excel(file)
+            # Read CSV file instead of Excel
+            df = pd.read_csv(file)
             codes = df['code'].tolist()
 
             # Đường dẫn tới file CSV lưu trữ mã khuyến mãi
@@ -189,16 +195,17 @@ def upload_promotion_codes():
             else:
                 existing_df = pd.DataFrame(columns=['code', 'used'])
 
-            # Thêm các mã khuyến mãi mới vào DataFrame
-            for code in codes:
-                if code not in existing_df['code'].values:
-                    existing_df = existing_df.append({'code': code, 'used': False}, ignore_index=True)
+            # Tạo DataFrame mới chứa các mã khuyến mãi mới
+            new_df = pd.DataFrame({'code': codes, 'used': False})
+
+            # Kết hợp DataFrame hiện tại và DataFrame mới
+            combined_df = pd.concat([existing_df, new_df]).drop_duplicates(subset='code').reset_index(drop=True)
 
             # Lưu DataFrame vào file CSV
-            existing_df.to_csv(csv_file, index=False)
-
+            combined_df.to_csv(csv_file, index=False)
+            logging.info('Promotion codes uploaded successfully')
             return jsonify({'status': 'success'})
         except Exception as e:
-            return jsonify({'status': 'error', 'message': str(e)}), 500
-
+            logging.error(f'Error processing file: {str(e)}')
+            return jsonify({'status': 'error', 'message': 'File processing error'}), 500
     return jsonify({'status': 'error', 'message': 'File processing error'}), 500

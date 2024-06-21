@@ -20,6 +20,6 @@ class Order(db.Model):
 
 class PromotionCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     code = db.Column(db.String(50), unique=True, nullable=False)
-
+    used = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
