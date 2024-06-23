@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sự kiện</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/manage_events.css') }}">
+</head>
+<body>
+    <h1>Quản lý sự kiện</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file.label }} {{ form.file() }}
+        <button type="submit">Upload Promotion Codes</button>
+    </form>
+    <h2>Danh sách mã khuyến mãi</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã khuyến mãi</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for code in promotion_codes %}
+            <tr>
+                <td>{{ code.code }}</td>
+                <td>{{ 'Đã sử dụng' if code.used else 'Chưa sử dụng' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sự kiện</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/manage_events.css') }}">
+</head>
+<body>
+    <h1>Quản lý sự kiện</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file.label }} {{ form.file() }}
+        <button type="submit">Upload Promotion Codes</button>
+    </form>
+    <h2>Danh sách mã khuyến mãi</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã khuyến mãi</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for code in promotion_codes %}
+            <tr>
+                <td>{{ code.code }}</td>
+                <td>{{ 'Đã sử dụng' if code.used else 'Chưa sử dụng' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

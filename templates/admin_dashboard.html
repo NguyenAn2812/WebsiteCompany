@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='Style/admin.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -30,15 +31,16 @@
         <div class="modal-content">
             <span class="close" onclick="closeUploadModal()">&times;</span>
             <h2>Upload Promotion Codes</h2>
-            <form id="uploadForm">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="file" id="promotionCodeFile" name="file">
-                <button type="button" onclick="uploadPromotionCodes()">Upload</button>
-            </form>
+            <input type="file" id="promotionCodeFile">
+            <button onclick="uploadPromotionCodes()">Upload</button>
         </div>
     </div>
 
     <script>
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
         function showUploadModal() {
             document.getElementById('uploadModal').style.display = 'block';
         }
@@ -48,7 +50,17 @@
         }
 
         function uploadPromotionCodes() {
-            var formData = new FormData(document.getElementById('uploadForm'));
+            var fileInput = document.getElementById('promotionCodeFile');
+            var file = fileInput.files[0];
+
+            if (!file) {
+                Swal.fire('Error', 'Please select a file to upload.', 'error');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('csrf_token', getCSRFToken());
 
             fetch('{{ url_for("admin.upload_promotion_codes") }}', {
                 method: 'POST',

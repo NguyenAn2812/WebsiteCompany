@@ -9,8 +9,6 @@ import logging
 
 admin_bp = Blueprint('admin', __name__)
 
-logging.basicConfig(level=logging.INFO)
-
 @admin_bp.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
@@ -182,12 +180,11 @@ def upload_promotion_codes():
 
     if file:
         try:
-            # Read CSV file instead of Excel
-            df = pd.read_csv(file)
-            codes = df['code'].tolist()
+            content = file.read().decode('utf-8')
+            codes = content.splitlines()
 
             # Đường dẫn tới file CSV lưu trữ mã khuyến mãi
-            csv_file = os.path.join(os.path.dirname(__file__), '../database/promotioncodelist.csv')
+            csv_file = os.path.join(os.path.dirname(__file__), '..', '..', 'database', 'promotioncodelist.csv')
 
             # Đọc dữ liệu CSV hiện tại
             if os.path.exists(csv_file):
@@ -195,14 +192,14 @@ def upload_promotion_codes():
             else:
                 existing_df = pd.DataFrame(columns=['code', 'used'])
 
-            # Tạo DataFrame mới chứa các mã khuyến mãi mới
-            new_df = pd.DataFrame({'code': codes, 'used': False})
-
-            # Kết hợp DataFrame hiện tại và DataFrame mới
-            combined_df = pd.concat([existing_df, new_df]).drop_duplicates(subset='code').reset_index(drop=True)
+            # Thêm các mã khuyến mãi mới vào DataFrame
+            for code in codes:
+                if code not in existing_df['code'].values:
+                    new_row = pd.DataFrame({'code': [code], 'used': [False]})
+                    existing_df = pd.concat([existing_df, new_row], ignore_index=True)
 
             # Lưu DataFrame vào file CSV
-            combined_df.to_csv(csv_file, index=False)
+            existing_df.to_csv(csv_file, index=False)
             logging.info('Promotion codes uploaded successfully')
             return jsonify({'status': 'success'})
         except Exception as e:
