@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='Style/admin_dashboard.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Manage Accounts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/manage_accounts.css') }}">
 </head>
 <body>
     <header>
@@ -25,18 +23,12 @@
             </ul>
         </nav>
     </header>
-    <main>
-        <section class="admin-dashboard">
-            <h1>Welcome to the Admin Dashboard</h1>
-            <div class="user-info">
-                <p>Company: {{ current_user.company_name }}</p>
-                <p>User: {{ current_user.buyer_name }}</p>
-                <p>Points: {{ current_user.points }}</p>
-            </div>
-            <div class="content">
-                <!-- Nội dung chính của admin dashboard -->
-            </div>
-        </section>
-    </main>
+    <div class="admin-container">
+        <h1>Manage Accounts</h1>
+        <ul>
+            <li><a href="{{ url_for('admin.manage_customer_admins') }}" class="manage-button">Quản lý Admin Cấp Thấp</a></li>
+            <li><a href="{{ url_for('admin.manage_customers') }}" class="manage-button">Quản lý Tài Khoản Khách Hàng</a></li>
+        </ul>
+    </div>
 </body>
 </html>

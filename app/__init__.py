@@ -1,13 +1,13 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
-from app.models import db, User
+from app.models import db, User, PointHistory
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 import os
 
 def create_app():
-    load_dotenv()  # Load environment variables from .env file
+    load_dotenv()
 
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database/database.db'
@@ -45,9 +45,9 @@ def create_app():
     @app.cli.command('init-db')
     def init_db():
         with app.app_context():
-            db.create_all()
+            db.drop_all()  # Xóa tất cả các bảng hiện có
+            db.create_all()  # Tạo lại các bảng
 
-            # Create default superadmin account from environment variables
             admin_username = os.getenv('SUPER_ADMIN_USERNAME')
             admin_password = os.getenv('SUPER_ADMIN_PASSWORD')
 

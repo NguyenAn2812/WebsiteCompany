@@ -7,19 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='Style/event.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Enter Promotion Code</h1>
-        <form method="POST" action="{{ url_for('event.event') }}">
-            <input type="text" name="promotion_code" placeholder="Enter your promotion code here">
-            <button type="submit">Submit</button>
-        </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logocompany.png') }}" alt="Company Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home.home') }}">Home</a></li>
+                <li><a href="{{ url_for('event.event') }}">Event</a></li>
+                <li><a href="{{ url_for('product.products') }}">Products</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    <li>{{ current_user.company_name }}</li>
+                    <li>{{ current_user.buyer_name }}</li>
+                    <li>{{ current_user.points }} points</li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="promo-section">
+            <h2>Enter Promotion Code</h2>
+            <form method="POST" action="{{ url_for('event.event') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.code.label }} {{ form.code(size=20) }}
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn">Submit</button>
+                </div>
+            </form>
+        </section>
+        <section class="history-section">
+            <h2>Point History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Change</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in point_history %}
+                        <tr>
+                            <td>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ entry.change }}</td>
+                            <td>{{ entry.reason }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
 </body>
 </html>

@@ -41,7 +41,7 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             flash('Logged in successfully.', 'success')
-            if user.role in ['admin', 'superadmin']:
+            if user.role in ['hr_admin', 'customer_admin', 'superadmin']:
                 return redirect(url_for('admin.admin_dashboard'))
             else:
                 return redirect(url_for('home.home'))

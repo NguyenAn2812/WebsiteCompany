@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản Phẩm Artemia của Chúng Tôi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style/product.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logocompany.png') }}" alt="Company Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home.home') }}">Home</a></li>
+                {% if current_user.is_authenticated and current_user.role == 'superadmin' %}
+                    <li><a href="{{ url_for('admin.manage_events') }}">Quản lý sự kiện</a></li>
+                    <li><a href="{{ url_for('admin.manage_accounts') }}">Quản lý tài khoản</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('event.event') }}">Sự kiện</a></li>
+                    <li><a href="{{ url_for('product.products') }}">Sản phẩm</a></li>
+                {% endif %}
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('auth.logout') }}">Đăng xuất</a></li>
+                    <li>{{ current_user.company_name }}</li>
+                    <li>{{ current_user.buyer_name }}</li>
+                    <li>{{ current_user.points }} điểm</li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Đăng nhập</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Đăng ký</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <!-- Product Section -->
+        <section class="product-section">
+            <div class="product">
+                <img src="{{ url_for('static', filename='images/product2.png') }}" alt="Artemia Tức Thì Sống">
+                <div class="product-info">
+                    <h2>Artemia Tức Thì Sống</h2>
+                    <p class="short-description">Artemia nauplii nguyên chất, không tạp chất, sử dụng trực tiếp, tiện lợi cho các trại nuôi tôm.</p>
+                    <button onclick="toggleDetails('details1')">Xem Thêm</button>
+                    <div id="details1" class="detailed-description">
+                        <p><span class="highlight-blue">Artemia Tức Thì Sống (INSTART 1)</span> là giải pháp tiên tiến giúp <span class="highlight-red">trại tôm tiết kiệm thời gian và công sức</span>. Sản phẩm được cung cấp dưới dạng kem sống <span class="highlight-blue">800g mỗi khay</span>, chứa khoảng 60 triệu nauplii, không chứa tạp chất hay động vật bị hỏng, không vibrio. <span class="highlight-red">Artemia nauplii sẵn sàng để sử dụng ngay</span>, có thể trực tiếp đưa vào bể nuôi tôm mà không cần qua trình ấp trứng phức tạp, giúp tiết kiệm thời gian và giảm thiểu rủi ro nhiễm khuẩn. Sản phẩm này đặc biệt phù hợp với các trại tôm muốn duy trì chất lượng và hiệu quả nuôi trồng cao.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="product">
+                <img src="{{ url_for('static', filename='images/product1.png') }}" alt="Artemia Tức Thì Sống Được Tăng Cường">
+                <div class="product-info">
+                    <h2>Artemia Tức Thì Sống Được Tăng Cường</h2>
+                    <p class="short-description">Artemia nauplii được tăng cường dinh dưỡng, hỗ trợ sức khỏe và tăng trưởng tôm.</p>
+                    <button onclick="toggleDetails('details2')">Xem Thêm</button>
+                    <div id="details2" class="detailed-description">
+                        <p><span class="highlight-blue">Artemia Tức Thì Sống Được Tăng Cường (INSTART Energy)</span> mang lại lợi ích dinh dưỡng cao với sự pha trộn của các thành phần như <span class="highlight-red">DHA, Spirulina, men Selenium, và Vitamin C</span>, giúp tôm tăng trưởng nhanh và khỏe mạnh hơn. Sản phẩm này cung cấp một lượng Artemia nauplii dạng kem sống, sẵn sàng sử dụng ngay từ khay với tổng trọng lượng <span class="highlight-blue">800g</span>, chứa các chất tăng cường giúp tăng cường hệ miễn dịch và sức khỏe tổng thể của tôm. <span class="highlight-red">INSTART Energy phù hợp với các giai đoạn đầu của vòng đời tôm</span>, từ trại ươm đến vườn ươm và giai đoạn phát triển, hỗ trợ tối đa cho sự phát triển của tôm trong các điều kiện nuôi dưỡng.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <!-- Footer -->
+        <p>© 2024 Công Ty của Bạn. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+    <script>
+        // JavaScript function to toggle the display of detailed descriptions
+        function toggleDetails(detailId) {
+            var details = document.getElementById(detailId);
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block';
+                details.style.opacity = '1';
+            } else {
+                details.style.display = 'none';
+                details.style.opacity = '0';
+            }
+        }
+    </script>
+</body>
+</html>

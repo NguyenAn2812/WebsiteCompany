@@ -3,66 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sự kiện</title>
+    <title>Manage Events</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='Style/manage_events.css') }}">
 </head>
 <body>
-    <h1>Quản lý sự kiện</h1>
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        {{ form.file.label }} {{ form.file() }}
-        <button type="submit">Upload Promotion Codes</button>
-    </form>
-    <h2>Danh sách mã khuyến mãi</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Mã khuyến mãi</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for code in promotion_codes %}
-            <tr>
-                <td>{{ code.code }}</td>
-                <td>{{ 'Đã sử dụng' if code.used else 'Chưa sử dụng' }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sự kiện</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='Style/manage_events.css') }}">
-</head>
-<body>
-    <h1>Quản lý sự kiện</h1>
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        {{ form.file.label }} {{ form.file() }}
-        <button type="submit">Upload Promotion Codes</button>
-    </form>
-    <h2>Danh sách mã khuyến mãi</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Mã khuyến mãi</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for code in promotion_codes %}
-            <tr>
-                <td>{{ code.code }}</td>
-                <td>{{ 'Đã sử dụng' if code.used else 'Chưa sử dụng' }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <header>
+        <h1>Manage Events</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Upload Promotion Codes</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                {{ form.file.label }} {{ form.file() }}
+                <button type="submit">Upload</button>
+            </form>
+        </section>
+        <section>
+            <h2>Promotion Codes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Used</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for code in promotion_codes %}
+                    <tr>
+                        <td>{{ code.code }}</td>
+                        <td>{{ 'Yes' if code.used else 'No' }}</td>
+                        <td>{{ code.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
 </body>
 </html>

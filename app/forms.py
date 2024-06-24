@@ -31,5 +31,5 @@ class UploadForm(FlaskForm):
     submit = SubmitField('Upload')
 
 class PromoCodeForm(FlaskForm):
-    code = StringField('Promotional Code', validators=[DataRequired()])
+    code = StringField('Promotion Code', validators=[DataRequired()])
     submit = SubmitField('Submit')

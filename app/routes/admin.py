@@ -1,11 +1,11 @@
 import os
+import logging
+import pandas as pd
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
 from app.models import db, User, PromotionCode
-from app.forms import AdminForm
-import pandas as pd
-import logging
+from app.forms import AdminForm, UploadForm
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -17,6 +17,51 @@ def admin_dashboard():
         return redirect(url_for('home.home'))
 
     return render_template('admin_dashboard.html')
+
+@admin_bp.route('/admin/manage_accounts')
+@login_required
+def manage_accounts():
+    if current_user.role != 'superadmin':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home.home'))
+
+    return render_template('manage_accounts.html')
+
+@admin_bp.route('/admin/manage_events', methods=['GET', 'POST'])
+@login_required
+def manage_events():
+    if current_user.role != 'superadmin':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('home.home'))
+
+    form = UploadForm()
+    promotion_codes = PromotionCode.query.all()
+    if form.validate_on_submit():
+        file = form.file.data
+
+        if file.filename == '':
+            logging.error('No selected file')
+            flash('No selected file', 'danger')
+            return redirect(url_for('admin.manage_events'))
+
+        if file:
+            try:
+                df = pd.read_excel(file)
+                codes = df['code'].tolist()
+
+                for code in codes:
+                    if not PromotionCode.query.filter_by(code=code).first():
+                        new_code = PromotionCode(code=code, used=False)
+                        db.session.add(new_code)
+                db.session.commit()
+
+                logging.info('Promotion codes uploaded successfully')
+                flash('Promotion codes uploaded successfully', 'success')
+            except Exception as e:
+                logging.error(f'Error processing file: {str(e)}')
+                flash('Error processing file', 'danger')
+
+    return render_template('manage_events.html', form=form, promotion_codes=promotion_codes)
 
 @admin_bp.route('/admin/manage_hr_admins', methods=['GET', 'POST'])
 @login_required
@@ -162,47 +207,3 @@ def get_customer(user_id):
         })
     else:
         return jsonify({'status': 'error', 'message': 'User not found'}), 404
-
-@admin_bp.route('/admin/upload_promotion_codes', methods=['POST'])
-@login_required
-def upload_promotion_codes():
-    if current_user.role != 'superadmin':
-        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
-
-    if 'file' not in request.files:
-        logging.error('No file part')
-        return jsonify({'status': 'error', 'message': 'No file part'}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        logging.error('No selected file')
-        return jsonify({'status': 'error', 'message': 'No selected file'}), 400
-
-    if file:
-        try:
-            content = file.read().decode('utf-8')
-            codes = content.splitlines()
-
-            # Đường dẫn tới file CSV lưu trữ mã khuyến mãi
-            csv_file = os.path.join(os.path.dirname(__file__), '..', '..', 'database', 'promotioncodelist.csv')
-
-            # Đọc dữ liệu CSV hiện tại
-            if os.path.exists(csv_file):
-                existing_df = pd.read_csv(csv_file)
-            else:
-                existing_df = pd.DataFrame(columns=['code', 'used'])
-
-            # Thêm các mã khuyến mãi mới vào DataFrame
-            for code in codes:
-                if code not in existing_df['code'].values:
-                    new_row = pd.DataFrame({'code': [code], 'used': [False]})
-                    existing_df = pd.concat([existing_df, new_row], ignore_index=True)
-
-            # Lưu DataFrame vào file CSV
-            existing_df.to_csv(csv_file, index=False)
-            logging.info('Promotion codes uploaded successfully')
-            return jsonify({'status': 'success'})
-        except Exception as e:
-            logging.error(f'Error processing file: {str(e)}')
-            return jsonify({'status': 'error', 'message': 'File processing error'}), 500
-    return jsonify({'status': 'error', 'message': 'File processing error'}), 500

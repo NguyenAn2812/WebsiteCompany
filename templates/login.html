@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='Style/home.css') }}">
 </head>
 <body>
@@ -13,33 +13,36 @@
         </div>
         <nav>
             <ul>
-                {% if current_user.is_authenticated %}
-                    <li><a href="#">{{ current_user.company_name }}</a></li>
-                    <li><a href="#">{{ current_user.buyer_name }}</a></li>
-                    <li><a href="#">Points: {{ current_user.points }}</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                {% else %}
-                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                    <li><a href="{{ url_for('auth.register') }}" class="register-btn">Register</a></li>
-                {% endif %}
+                <li><a href="{{ url_for('home.home') }}">Trang chủ</a></li>
+                <li><a href="#">Sản phẩm</a></li>
+                <li><a href="#">Sự kiện</a></li>
+                <li><a href="{{ url_for('auth.register') }}" class="register-btn">Đăng kí</a></li>
             </ul>
         </nav>
     </header>
+
     <main>
-        <section class="features-section">
-            <h2>Welcome to Our Website</h2>
-            <p>Discover our features and services.</p>
-            <div class="features">
-                <div class="feature">
-                    <img src="{{ url_for('static', filename='images/feature1.png') }}" alt="Feature 1">
-                    <p>Feature 1 Description</p>
-                </div>
-                <div class="feature">
-                    <img src="{{ url_for('static', filename='images/feature2.png') }}" alt="Feature 2">
-                    <p>Feature 2 Description</p>
-                </div>
+        <h2>Login</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.phone_number.label }}<br>
+                {{ form.phone_number(size=32) }}<br>
+                {% for error in form.phone_number.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
             </div>
-        </section>
+            <div>
+                {{ form.password.label }}<br>
+                {{ form.password(size=32) }}<br>
+                {% for error in form.password.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div>
+                {{ form.submit() }}
+            </div>
+        </form>
     </main>
 </body>
 </html>
