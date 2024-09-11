@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='Style/home.css') }}">
+    <link rel="stylesheet" href="../static/style/home.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <img src="{{ url_for('static', filename='images/logocompany.png') }}" alt="Company Logo">
         </div>
         <nav>
-            <ul>
+            <ul> 
                 <li><a href="{{ url_for('home.home') }}">Home</a></li>
                 {% if current_user.is_authenticated and current_user.role == 'superadmin' %}
                     <li><a href="{{ url_for('admin.manage_events') }}">Quản lý sự kiện</a></li>
